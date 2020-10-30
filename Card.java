@@ -1,8 +1,8 @@
-public class Card {
+public class Card implements Comparable {
 	private String suite;
-	private String number;
+	private int number;
 	
-	public Card(String suite, String number) {
+	public Card(String suite, int number) {
 		this.suite = suite;
 		this.number = number;
 	}
@@ -11,11 +11,23 @@ public class Card {
 		return this.suite;
 	}
 	
-	public String getNumber() {
+	public int getNumber() {
 		return this.number;
 	}
 	
 	public String toString() {
-	  return = this.number + " of " + this.suite;
+		return this.number + " of " + this.suite;
+		
+	}
+
+	@Override
+	public int compareTo(Object o) {
+		if (((Card) o).getNumber() > this.getNumber()) {
+			return -1;
+		} else if (((Card) o).getNumber() < this.getNumber()) {
+			return 1;
+		} else {
+			return 0;
+		}
 	}
 }
