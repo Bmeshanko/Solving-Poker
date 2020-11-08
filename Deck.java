@@ -1,4 +1,7 @@
-import java.util.Arrays;
+/**
+ * Defines Deck Objects, which are arrays of 52 cards.
+ * Also defines methods relating to randomization and dealing.
+ */
 public class Deck {
 	private Card aceDiamonds = new Card("Diamonds", 14);
 	private Card aceHearts = new Card("Hearts", 14);
