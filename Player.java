@@ -342,27 +342,32 @@ public class Player {
 			}
 		}
 		
+		int highestStraight = 0;
+		
 		if ((numbers[4] != 6) && 
 				(numbers[6] == 14 && numbers[0] == 2 &&
 				numbers[1] == 3 && numbers[2] == 4 && numbers[3] == 5)) {
-			return 5;
+			highestStraight = 5;
 		} else if (numbers[1] - numbers[0] == 1 && 
 				numbers[2] - numbers[1] == 1 &&
 				numbers[3] - numbers[2] == 1 && 
-				numbers[4] - numbers[3] == 1) {
-			return numbers[4];
+				numbers[4] - numbers[3] == 1 && 
+				numbers[4] > highestStraight) {
+			highestStraight = numbers[4];
 		} else if (numbers[2] - numbers[1] == 1 && 
 				numbers[3] - numbers[2] == 1 &&
 				numbers[4] - numbers[3] == 1 && 
-				numbers[5] - numbers[4] == 1) {
-			return numbers[5];
+				numbers[5] - numbers[4] == 1 &&
+				numbers[5] > highestStraight) {
+			highestStraight = numbers[5];
 		} else if (numbers[3] - numbers[2] == 1 && 
 				numbers[4] - numbers[3] == 1 &&
 				numbers[5] - numbers[4] == 1 && 
-				numbers[6] - numbers[5] == 1) {
-			return numbers[6];
+				numbers[6] - numbers[5] == 1 &&
+				numbers[6] > highestStraight) {
+			highestStraight = numbers[6];
 		}
-		return 0;
+		return highestStraight;
 	}
 	
 	public int[] isThreeOfAKind(Card[] hand) {
@@ -407,51 +412,65 @@ public class Player {
 		return winner;
 	}
 	
-	public boolean isTwoPair(Card[] hand) {
-		int[] numbers = new int[7];
-	
-		ArrayList<Integer> sortedNumbers = new ArrayList<Integer>();
-		for (int j = 0; j < 7; j++) {
-			sortedNumbers.add(numbers[j]);
+	public int[] isTwoPair(Card[] hand) {
+		hand = this.sortCardsByNumber(hand);
+		int highestPair = 1;
+		int secondHighestPair = 1;
+		int[] winners = new int[3];
+		winners[0] = 0;
+		winners[1] = 0;
+		winners[2] = 0;
+		
+		if (hand[0].getNumber() == hand[1].getNumber() && hand[0].getNumber() > highestPair) {
+			highestPair = hand[0].getNumber();
+		}
+		if (hand[1].getNumber() == hand[2].getNumber() && hand[1].getNumber() > highestPair) {
+			highestPair = hand[1].getNumber();
+		}
+		if (hand[2].getNumber() == hand[3].getNumber() && hand[2].getNumber() > highestPair) {
+			highestPair = hand[2].getNumber();
+		}
+		if (hand[3].getNumber() == hand[4].getNumber() && hand[3].getNumber() > highestPair) {
+			highestPair = hand[3].getNumber();
+		}
+		if (hand[4].getNumber() == hand[5].getNumber() && hand[4].getNumber() > highestPair) {
+			highestPair = hand[4].getNumber();
+		}
+		if (hand[5].getNumber() == hand[6].getNumber() && hand[5].getNumber() > highestPair) {
+			highestPair = hand[5].getNumber();
 		}
 		
-		Collections.sort(sortedNumbers);
-		for (int k = 0; k < 7; k++) {
-			numbers[k] = sortedNumbers.get(k);
+		if (hand[0].getNumber() == hand[1].getNumber() && hand[0].getNumber() != highestPair && hand[0].getNumber() > secondHighestPair) {
+			secondHighestPair = hand[0].getNumber();
+		}
+		if (hand[1].getNumber() == hand[2].getNumber() && hand[1].getNumber() != highestPair && hand[1].getNumber() > secondHighestPair) {
+			secondHighestPair = hand[1].getNumber();
+		}
+		if (hand[2].getNumber() == hand[3].getNumber() && hand[2].getNumber() != highestPair && hand[2].getNumber() > secondHighestPair) {
+			secondHighestPair = hand[2].getNumber();
+		}
+		if (hand[3].getNumber() == hand[4].getNumber() && hand[3].getNumber() != highestPair && hand[3].getNumber() > secondHighestPair) {
+			secondHighestPair = hand[3].getNumber();
+		}
+		if (hand[4].getNumber() == hand[5].getNumber() && hand[4].getNumber() != highestPair && hand[4].getNumber() > secondHighestPair) {
+			secondHighestPair = hand[4].getNumber();
+		}
+		if (hand[5].getNumber() == hand[6].getNumber() && hand[5].getNumber() != highestPair && hand[5].getNumber() > secondHighestPair) {
+			secondHighestPair = hand[5].getNumber();
 		}
 		
-		
-		int pairCounter = 0;
-		
-		if (numbers[1] == numbers[0] && numbers[2] != numbers[1]) {
-			pairCounter++;
+		if (highestPair > 1 && secondHighestPair > 1) {
+			winners[0] = highestPair;
+			winners[1] = secondHighestPair;
+			this.sortCardsByNumber(hand);
+			
+			int c = 6;
+			while (hand[c].getNumber() != winners[0] && hand[c].getNumber() != winners[1]) {
+				c--;
+			}
+			winners[2] = hand[c].getNumber();
 		}
-		
-		if (numbers[2] == numbers[1] && numbers[2] != numbers[3] && numbers[1] != numbers[0]) {
-			pairCounter++;
-		}
-		
-		if (numbers[3] == numbers[2] && numbers[3] != numbers[4] && numbers[2] != numbers[1]) {
-			pairCounter++;
-		}
-		
-		if (numbers[4] == numbers[3] && numbers[4] != numbers[5] && numbers[3] != numbers[2]) {
-			pairCounter++;
-		}
-		
-		if (numbers[5] == numbers[4] && numbers[5] != numbers[6] && numbers[4] != numbers[3]) {
-			pairCounter++;
-		}
-		
-		if (numbers[6] == numbers[5] && numbers[5] != numbers[4]) {
-			pairCounter++;
-		}
-		
-		if (pairCounter == 2) {
-			return true;
-		} else {
-			return false;
-		}
+		return winners;
 	}
 	
 	public int[] isPair(Card[] hand) {
