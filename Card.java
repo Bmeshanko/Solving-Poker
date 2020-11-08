@@ -1,3 +1,8 @@
+/**
+ * Defines Card Objects, which have a suite and number.
+ * Implements Comparable to use Collections.sort later on.
+ * 
+ */
 public class Card implements Comparable {
 	private String suite;
 	private int number;
@@ -20,7 +25,6 @@ public class Card implements Comparable {
 		
 	}
 
-	@Override
 	public int compareTo(Object o) {
 		if (((Card) o).getNumber() > this.getNumber()) {
 			return -1;
