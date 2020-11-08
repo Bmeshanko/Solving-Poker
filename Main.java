@@ -11,7 +11,7 @@ public class Main {
 		PrintWriter pw = null;
 		try {
 			pw = new PrintWriter("poker.txt");
-			while (iterations < 2000) {
+			while (iterations < 1000) {
 				iterations++;
 				Deck deck = new Deck();
 				Player playerOne = new Player("Player One", deck);
@@ -20,7 +20,10 @@ public class Main {
 				Player playerFour = new Player("Player Four", deck);
 				Player playerFive = new Player("Player Five", deck);
 				Player playerSix = new Player("Player Six", deck);
-				Player[] players = {playerOne, playerTwo, playerThree, playerFour, playerFive, playerSix};
+				Player playerSeven = new Player("Player Seven", deck);
+				Player playerEight = new Player("Player Eight", deck);
+				Player playerNine = new Player("Player Nine", deck);
+				Player[] players = {playerOne, playerTwo, playerThree, playerFour, playerFive, playerSix, playerSeven, playerEight, playerNine};
 				for (int i = 0; i < players.length; i++) {
 					pw.println(players[i].toString());
 				}
@@ -227,16 +230,16 @@ public class Main {
 						highestThreeOfAKind1 = players[i].isThreeOfAKind(players[i].getCards())[0];
 					}
 				}
-				
+			
 				for (int i = 0; i < players.length; i++) {
 					if (players[i].isThreeOfAKind(players[i].getCards())[1] > highestThreeOfAKind2) {
-						highestThreeOfAKind1 = players[i].isThreeOfAKind(players[i].getCards())[1];
+						highestThreeOfAKind2 = players[i].isThreeOfAKind(players[i].getCards())[1];
 					}
 				}
 				
 				for (int i = 0; i < players.length; i++) {
 					if (players[i].isThreeOfAKind(players[i].getCards())[2] > highestThreeOfAKind3) {
-						highestThreeOfAKind1 = players[i].isThreeOfAKind(players[i].getCards())[2];
+						highestThreeOfAKind3 = players[i].isThreeOfAKind(players[i].getCards())[2];
 					}
 				}
 				
@@ -257,13 +260,100 @@ public class Main {
 				// TWO PAIR TESTER
 				//
 				
+				boolean isTwoPair = false;
+				
+				int highestTwoPair1 = 2;
+				int highestTwoPair2 = 2;
+				int highestTwoPair3 = 2;
+				
+				for (int i = 0; i < players.length; i++) {
+					if (players[i].isTwoPair(players[i].getCards())[0] > highestTwoPair1) {
+						highestTwoPair1 = players[i].isTwoPair(players[i].getCards())[0];
+					}
+				}
+				
+				for (int i = 0; i < players.length; i++) {
+					if (players[i].isTwoPair(players[i].getCards())[0] == highestTwoPair1 &&
+							players[i].isTwoPair(players[i].getCards())[1] > highestTwoPair2) {
+						highestTwoPair2 = players[i].isTwoPair(players[i].getCards())[1];
+					}
+				}
+				
+				for (int i = 0; i < players.length; i++) {
+					if (players[i].isTwoPair(players[i].getCards())[1] == highestTwoPair2 &&
+							players[i].isTwoPair(players[i].getCards())[2] > highestTwoPair3) {
+						highestTwoPair3 = players[i].isTwoPair(players[i].getCards())[2];
+					}
+				}
+				
+				for (int i = 0; i < players.length; i++) {
+					if (players[i].isTwoPair(players[i].getCards())[0] == highestTwoPair1 &&
+							players[i].isTwoPair(players[i].getCards())[1] == highestTwoPair2 &&
+									players[i].isTwoPair(players[i].getCards())[2] == highestTwoPair3) {
+						pw.println(players[i].getName() + " wins with Two Pair!");
+						isTwoPair = true;
+						pw.println("--------------------------------------------");
+					}	
+				}
+				
+				if (isTwoPair)
+					continue;
+				
 				//
 				// PAIR TESTER
 				//
 				
+				boolean isPair = false;
+				int highestPair1 = 2;
+				int highestPair2 = 2;
+				int highestPair3 = 2;
+				int highestPair4 = 2;
+				
+				for (int i = 0; i < players.length; i++) {
+					if (players[i].isPair(players[i].getCards())[0] > highestPair1) {
+						highestPair1 = players[i].isPair(players[i].getCards())[0];
+					}
+				}
+				
+				for (int i = 0; i < players.length; i++) {
+					if (players[i].isPair(players[i].getCards())[0] == highestPair1 &&
+							players[i].isPair(players[i].getCards())[1] > highestPair2) {
+						highestPair2 = players[i].isPair(players[i].getCards())[1];
+					}
+				}
+				
+				for (int i = 0; i < players.length; i++) {
+					if (players[i].isPair(players[i].getCards())[1] == highestPair2 &&
+							players[i].isPair(players[i].getCards())[2] > highestPair3) {
+						highestPair3 = players[i].isPair(players[i].getCards())[2];
+					}
+				}
+				
+				for (int i = 0; i < players.length; i++) {
+					if (players[i].isPair(players[i].getCards())[2] == highestPair3 &&
+							players[i].isPair(players[i].getCards())[3] > highestPair4) {
+						highestPair4 = players[i].isPair(players[i].getCards())[3];
+					}
+				}
+				
+				for (int i = 0; i < players.length; i++) {
+					if (players[i].isPair(players[i].getCards())[0] == highestPair1 &&
+							players[i].isPair(players[i].getCards())[1] == highestPair2 &&
+							players[i].isPair(players[i].getCards())[2] == highestPair3 &&
+							players[i].isPair(players[i].getCards())[3] == highestPair4) {
+						pw.println(players[i].getName() + " wins with a Pair!");
+						isPair = true;
+						pw.println("--------------------------------------------");
+					}	
+				}
+				
+				if (isPair)
+					continue;
+				
 				//
 				// HIGH CARD TESTER
 				//
+				
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
