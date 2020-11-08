@@ -1,3 +1,8 @@
+/**
+ * Defines Player objects, which have 7 cards (2 in hand, 5 in community).
+ * 
+ * This class includes several methods that determine what poker hand the Player has.
+ */
 import java.util.ArrayList;
 import java.util.Collections;
 public class Player {
@@ -49,7 +54,7 @@ public class Player {
 	}
 	
 	public int isStraightFlush(Card[] hand) {
-		if (!this.isFlush(this.getCards()) && this.isStraight(this.getCards()) > 0) {
+		if (this.isFlush(this.getCards())[0].getNumber() == 0 && this.isStraight(this.getCards()) > 0) {
 			return 0;
 		}
 		int numOfClubs = 0;
@@ -164,8 +169,6 @@ public class Player {
 		} else {
 			return isStraight(hand);
 		}
-		
-		
 	}
 	
 	public int[] isFourOfAKind(Card[] hand) {
@@ -215,69 +218,110 @@ public class Player {
 	}
 	
 	public int[] isFullHouse(Card[] hand) {
-  //Probably/Definitely broken as of 10/30/20. It is difficult to correctly implement the possibilities for isFullHouse and isTwoPair.
 		int[] xFullY = new int[2];
 		xFullY[1] = this.isPair(hand)[0];
 		xFullY[0] = this.isThreeOfAKind(hand)[0];
 		return xFullY;
 	}
 	
-	public boolean isFlush(Card[] hand) {
-		int counter = 0;
-		String[] suits = new String[7];
+	public Card[] isFlush(Card[] hand) {
+		Card[] highCards = new Card[7];
+		
+		Card[] sortedBySuite = new Card[7];
 		for (int i = 0; i < 7; i++) {
-			suits[i] = hand[i].getSuite();
+			sortedBySuite[i] = new Card("Temp", 0);
 		}
+		int temp = 0;
 		
-		ArrayList<String> sortedSuits = new ArrayList<String>();
 		for (int a = 0; a < 7; a++) {
-			if (suits[a].equals("Clubs")) {
-				sortedSuits.add("Clubs");
+			if (hand[a].getSuite().equals("Clubs")) {
+				sortedBySuite[temp] = hand[a];
+				temp++;
 			}
 		}
 		
-		for (int b = 0; b < 7; b++) {
-			if (suits[b].equals("Diamonds")) {
-				sortedSuits.add("Diamonds");
+		for (int a = 0; a < 7; a++) {
+			if (hand[a].getSuite().equals("Diamonds")) {
+				sortedBySuite[temp] = hand[a];
+				temp++;
 			}
 		}
 		
-		for (int c = 0; c < 7; c++) {
-			if (suits[c].equals("Hearts")) {
-				sortedSuits.add("Hearts");
-			}
-		}
-		for (int d = 0; d < 7; d++) {
-			if (suits[d].equals("Spades")) {
-				sortedSuits.add("Spades");
+		for (int a = 0; a < 7; a++) {
+			if (hand[a].getSuite().equals("Hearts")) {
+				sortedBySuite[temp] = hand[a];
+				temp++;
 			}
 		}
 		
-		if (hand[0].getSuite().equals(hand[1].getSuite()) && 
-				hand[0].getSuite().equals(hand[2].getSuite()) &&
-				hand[0].getSuite().equals(hand[3].getSuite()) &&
-				hand[0].getSuite().equals(hand[4].getSuite())) {
-			return true;
-		} else if (hand[1].getSuite().equals(hand[2].getSuite()) && 
-				hand[1].getSuite().equals(hand[3].getSuite()) &&
-				hand[1].getSuite().equals(hand[4].getSuite()) &&
-				hand[1].getSuite().equals(hand[5].getSuite())) {
-			return true;
-		} else if (hand[2].getSuite().equals(hand[3].getSuite()) && 
-				hand[2].getSuite().equals(hand[4].getSuite()) &&
-				hand[2].getSuite().equals(hand[5].getSuite()) &&
-				hand[2].getSuite().equals(hand[6].getSuite())) {
-			return true;
+		for (int a = 0; a < 7; a++) {
+			if (hand[a].getSuite().equals("Spades")) {
+				sortedBySuite[temp] = hand[a];
+				temp++;
+			}
+		}
+		
+		String flushSuite = "";
+		
+		if (sortedBySuite[0].getSuite().equals(sortedBySuite[1].getSuite()) &&
+				sortedBySuite[0].getSuite().equals(sortedBySuite[2].getSuite()) &&
+				sortedBySuite[0].getSuite().equals(sortedBySuite[3].getSuite()) &&
+				sortedBySuite[0].getSuite().equals(sortedBySuite[4].getSuite())) {
+			
+			flushSuite = sortedBySuite[0].getSuite();
+			
+		} else if (sortedBySuite[1].getSuite().equals(sortedBySuite[2].getSuite()) &&
+				sortedBySuite[1].getSuite().equals(sortedBySuite[3].getSuite()) &&
+				sortedBySuite[1].getSuite().equals(sortedBySuite[4].getSuite()) &&
+				sortedBySuite[1].getSuite().equals(sortedBySuite[5].getSuite())) {
+			
+			flushSuite = sortedBySuite[1].getSuite();
+			
+		} else if (sortedBySuite[2].getSuite().equals(sortedBySuite[3].getSuite()) &&
+				sortedBySuite[2].getSuite().equals(sortedBySuite[4].getSuite()) &&
+				sortedBySuite[2].getSuite().equals(sortedBySuite[5].getSuite()) &&
+				sortedBySuite[2].getSuite().equals(sortedBySuite[6].getSuite())) {
+			
+			flushSuite = sortedBySuite[2].getSuite();
+			
 		} else {
-			return false;
+			for (int i = 0; i < 7; i ++) {
+				highCards[i] = new Card("Temp", 0);
+			}
+			return highCards;
 		}
+		
+		ArrayList<Card> flushCards = new ArrayList<Card>();
+		
+		for (int i = 0; i < 7; i++) {
+			if (sortedBySuite[i].getSuite().equals(flushSuite)) {
+				flushCards.add(sortedBySuite[i]);
+			}
+		}
+		
+		Collections.sort(flushCards);
+		
+		for (int i = 0; i < flushCards.size(); i++) {
+			highCards[i] = flushCards.get(flushCards.size() - i - 1);
+		}
+		
+		if (flushCards.size() == 6) {
+			highCards[5] = new Card("Temp", 0);
+		} else if (flushCards.size() == 7) {
+			highCards[5] = new Card("Temp", 0);
+			highCards[6] = new Card("Temp", 0);
+		}
+		
+		
+		return highCards;
+		
 	}
 	
 	public int isStraight(Card[] hand) {
 		int[] numbers = new int[7];
 		
 		ArrayList<Integer> sortedNumbers = new ArrayList<Integer>();
-		for (int j = 0; j < 7; j++) {
+		for (int j = 0; j < hand.length; j++) {
 			sortedNumbers.add(hand[j].getNumber());
 		}
 		
@@ -286,6 +330,8 @@ public class Player {
 			numbers[k] = sortedNumbers.get(k);
 		}
 		
+		
+		//Moves Duplicates to the end.
 		for (int l = 1; l < hand.length; l++) {
 			if (numbers[l] == numbers[l - 1]) {
 				int temp = numbers[l];
@@ -320,7 +366,6 @@ public class Player {
 	}
 	
 	public int[] isThreeOfAKind(Card[] hand) {
-    //Probably broken as of 10/30/20. It is difficult to correctly implement the possibilities for isFullHouse and isTwoPair.
 		int[] winner = new int[3];
 		winner[0] = 0;
 		Card[] sortedHand = this.sortCardsByNumber(hand);
@@ -363,7 +408,6 @@ public class Player {
 	}
 	
 	public boolean isTwoPair(Card[] hand) {
-    //Probably broken as of 10/30/20. It is difficult to correctly implement the possibilities for isFullHouse and isTwoPair.
 		int[] numbers = new int[7];
 	
 		ArrayList<Integer> sortedNumbers = new ArrayList<Integer>();
@@ -411,7 +455,6 @@ public class Player {
 	}
 	
 	public int[] isPair(Card[] hand) {
-  //Probably broken as of 10/30/20. It is difficult to correctly implement the possibilities for isFullHouse and isTwoPair.
 		hand = this.sortCardsByNumber(hand);
 		int highestPair = 1;
 		int[] winners = new int[4];
