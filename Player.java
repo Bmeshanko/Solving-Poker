@@ -6,15 +6,15 @@
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
-public class Player {
-	
+public class Player {	
 	private Card cardOne;
 	private Card cardTwo;
 	private CardList cards;
 	
-	private int chips = 1500;
-	private int currentBet;
-	private boolean littleBlind;
+	// The following five instance variables will be used with Game.java
+	private int chips = 1500; 
+	private int currentBet; 
+	private boolean littleBlind; 
 	private boolean bigBlind;
 	private boolean isHuman;
 	
@@ -48,12 +48,12 @@ public class Player {
 		return this.chips;
 	}
 	
-	
+	// Used to determine their original hand.
 	public Card getCardOne() {
 		return cardOne;
 	}
 
-
+	// Used to determine their original hand.
 	public Card getCardTwo() {
 		return cardTwo;
 	}
@@ -63,6 +63,8 @@ public class Player {
 		return this.getCardOne().toString() + " | " + this.getCardTwo().toString();
 	}
 	
+	// Poker-Data.xlsx uses this method to print out a list of hundreds of thousands of data points, and
+	// whether or not they won or lost to determine the relative win percentages.
 	public String suitlessString() {
 		if (cardTwo.getNumber() > cardOne.getNumber()) {
 			Card temp = cardOne;
@@ -123,7 +125,7 @@ public class Player {
 		return type;
 	}
 	
-	
+	// Deals the cards to the player.
 	public void dealCards(Deck deck) {
 		this.cardOne = deck.deal();
 		this.cardTwo = deck.deal();
@@ -185,7 +187,7 @@ public class Player {
 		this.chips += chips / winners;
 	}
 	
-	
+	// IN DEVELOPMENT
 	public int evaluateBet(int call, int betNumber) {
 		
 		Scanner scan = new Scanner(System.in);
@@ -221,7 +223,7 @@ public class Player {
 		
 		cards.sort();
 		
-		// If you don't have a straight and a flush, you don't have a straight flush!
+		// If you don't have a straight AND a flush, you don't have a straight flush!
 		// However, it is possible to have both a straight and a flush, but not a straight flush.
 		if (this.straight(this.getCards()) == 0 || this.flush(this.getCards())[0] == 0) {
 			return 0;
@@ -230,7 +232,12 @@ public class Player {
 		int highestStraight = this.straight(this.getCards());
 		
 		// The reason we need this code is to determine what suit is predominant, since we can't
-		// get that information from the flush method.
+		// get that information from the flush method. (Methods cannot have multiple return types)
+
+		// (FUTURE) It is a good point to bring up here - eventually I will have to add the predominant suit
+		// when I modify the suitlessString method to also include the flops. Example: a Royal Flush on the flop will
+		// look like this: AKQJ05 - the final 5 representing the amount of cards in the predominant suit. AKQJ04, AKQJ03, 
+		// and AKQJ02 are strategically different.
 		int clubs = 0;
 		int diamonds = 0;
 		int hearts = 0;
