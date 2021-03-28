@@ -1,8 +1,10 @@
+import java.util.ArrayList;
 /**
  * Defines Deck Objects, which are arrays of 52 cards.
  * Also defines methods relating to randomization and dealing.
  */
 public class Deck {
+	// Initialize all 52 Cards in the deck.
 	private Card aceDiamonds = new Card("Diamonds", 14);
 	private Card aceHearts = new Card("Hearts", 14);
 	private Card aceClubs = new Card("Clubs", 14);
@@ -55,86 +57,84 @@ public class Deck {
 	private Card kingHearts = new Card("Hearts", 13);
 	private Card kingClubs = new Card("Clubs", 13);
 	private Card kingSpades = new Card("Spades", 13);
-	private Card[] cards = {aceDiamonds, aceHearts, aceClubs, aceSpades, twoDiamonds, 
-			twoHearts, twoClubs, twoSpades, threeDiamonds, threeHearts, threeClubs, 
-			threeSpades, fourDiamonds, fourHearts, fourClubs, fourSpades, fiveDiamonds, 
-			fiveHearts, fiveClubs, fiveSpades, sixDiamonds, sixHearts, sixClubs, sixSpades, 
-			sevenDiamonds, sevenHearts, sevenClubs, sevenSpades, eightDiamonds, eightHearts, 
-			eightClubs, eightSpades, nineDiamonds, nineHearts, nineClubs, nineSpades,
-			tenDiamonds, tenHearts, tenClubs, tenSpades, jackDiamonds, jackHearts, jackClubs, 
-			jackSpades, queenDiamonds, queenHearts, queenClubs, queenSpades, kingDiamonds, 
-			kingHearts, kingClubs, kingSpades};
-	private Card[] flop = new Card[3];
-	private Card[] turn = new Card[4];
-	private Card[] river = new Card[5];
 	
+	private CardList deck = new CardList();
+
 	public Deck() {
+		// Add all 52 cards to the deck.
+		deck.add(aceDiamonds);
+		deck.add(aceHearts);
+		deck.add(aceClubs);
+		deck.add(aceSpades);
+		deck.add(twoDiamonds);
+		deck.add(twoHearts);
+		deck.add(twoClubs);
+		deck.add(twoSpades);
+		deck.add(threeDiamonds);
+		deck.add(threeHearts);
+		deck.add(threeClubs);
+		deck.add(threeSpades);
+		deck.add(fourDiamonds);
+		deck.add(fourHearts);
+		deck.add(fourClubs);
+		deck.add(fourSpades);
+		deck.add(fiveDiamonds);
+		deck.add(fiveHearts);
+		deck.add(fiveClubs);
+		deck.add(fiveSpades);
+		deck.add(sixDiamonds);
+		deck.add(sixHearts);
+		deck.add(sixClubs);
+		deck.add(sixSpades);
+		deck.add(sevenDiamonds);
+		deck.add(sevenHearts);
+		deck.add(sevenClubs);
+		deck.add(sevenSpades);
+		deck.add(eightDiamonds);
+		deck.add(eightHearts);
+		deck.add(eightClubs);
+		deck.add(eightSpades);
+		deck.add(nineDiamonds);
+		deck.add(nineHearts);
+		deck.add(nineClubs);
+		deck.add(nineSpades);
+		deck.add(tenDiamonds);
+		deck.add(tenHearts);
+		deck.add(tenClubs);
+		deck.add(tenSpades);
+		deck.add(jackDiamonds);
+		deck.add(jackHearts);
+		deck.add(jackClubs);
+		deck.add(jackSpades);
+		deck.add(queenDiamonds);
+		deck.add(queenHearts);
+		deck.add(queenClubs);
+		deck.add(queenSpades);
+		deck.add(kingDiamonds);
+		deck.add(kingHearts);
+		deck.add(kingClubs);
+		deck.add(kingSpades);
+		
 		shuffle();
 	}
 	
-	public Card[] getCards() {
-		return this.cards;
+	public CardList getCards() {
+		return this.deck;
 	}
 	
 	public void shuffle() {
-		Card[] shuffledCards = new Card[52];
-		for (int i = 0; i < 52; i++) {
-			int j = (int) (52*Math.random());
-			while (shuffledCards[j] != null) {
-				j = (int) (52*Math.random());
-			}
-			shuffledCards[j] = this.cards[i];
+		CardList shuffledDeck = new CardList();
+		while(deck.size() > 0) {
+			int random = (int) (deck.size() * Math.random());
+			shuffledDeck.add(deck.get(random));
+			deck.remove(random);
 		}
-		this.cards = shuffledCards;
+		this.deck = shuffledDeck;
 	}
 	
 	public Card deal() {
-		Card[] nonDealtCards = new Card[cards.length - 1];
-		for (int i = 1; i < cards.length; i++) {
-			nonDealtCards[i-1] = this.cards[i];
-		}
-		Card dealtCard = this.cards[0];
-		this.cards = nonDealtCards;
-		return dealtCard;
-	}
-
-	public String toString(Card[] cards) {
-		String s = "";
-		for (int i = 0; i < cards.length; i++) {
-			s += cards[i].toString() + " | ";
-		}
-		return s;
-	}
-	
-	
-	public void flop(Deck deck) {
-		for (int i = 0; i < 3; i++) {
-			Card temp = deck.deal();
-			this.flop[i] = temp;
-			this.turn[i] = temp;
-			this.river[i] = temp;
-		}
-	}
-	
-	public Card[] getFlop() {
-		return this.flop;
-	}
-	
-	public void turn(Deck deck) {
-		Card temp = deck.deal();
-		this.turn[3] = temp;
-		this.river[3] = temp;
-	}
-	
-	public Card[] getTurn() {
-		return this.turn;
-	}
-	
-	public void river(Deck deck) {
-		this.river[4] = deck.deal();
-	}
-	
-	public Card[] getRiver() {
-		return this.river;
+		Card dealCard = deck.get(0);
+		this.deck.remove(0);
+		return dealCard;
 	}
 }
