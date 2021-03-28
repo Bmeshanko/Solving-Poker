@@ -4,16 +4,16 @@
  * 
  */
 public class Card implements Comparable {
-	private String suite;
+	private String suit;
 	private int number;
 	
-	public Card(String suite, int number) {
-		this.suite = suite;
+	public Card(String suit, int number) {
+		this.suit = suit;
 		this.number = number;
 	}
 	
-	public String getSuite() {
-		return this.suite;
+	public String getSuit() {
+		return this.suit;
 	}
 	
 	public int getNumber() {
@@ -21,7 +21,7 @@ public class Card implements Comparable {
 	}
 	
 	public String toString() {
-		return this.number + " of " + this.suite;
+		return this.number + " of " + this.suit;
 		
 	}
 
