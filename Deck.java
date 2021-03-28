@@ -115,6 +115,7 @@ public class Deck {
 		deck.add(kingClubs);
 		deck.add(kingSpades);
 		
+		// Then, we need to shuffle the cards.
 		shuffle();
 	}
 	
@@ -124,7 +125,9 @@ public class Deck {
 	
 	public void shuffle() {
 		CardList shuffledDeck = new CardList();
-		while(deck.size() > 0) {
+		while(deck.size() > 0) { 
+			// Removes the cards from the deck in random order,
+			// Puts them into a new deck. A Reverse Insertion Sort!
 			int random = (int) (deck.size() * Math.random());
 			shuffledDeck.add(deck.get(random));
 			deck.remove(random);
@@ -132,6 +135,9 @@ public class Deck {
 		this.deck = shuffledDeck;
 	}
 	
+	// Deal the top card in the Deck. No need to "burn" a card.
+	// Removes that deck from the deck - We will need to reinitialize a
+	// Deck() object for every hand that we deal.
 	public Card deal() {
 		Card dealCard = deck.get(0);
 		this.deck.remove(0);
