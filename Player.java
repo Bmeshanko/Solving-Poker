@@ -5,516 +5,567 @@
  */
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Scanner;
 public class Player {
+	
 	private Card cardOne;
 	private Card cardTwo;
-	private Card[] cards = new Card[7];
-	private String name;
-	private int numChips = 1500;
+	private CardList cards;
 	
-	public Player(String name, Deck deck) {
+	private int chips = 1500;
+	private int currentBet;
+	private boolean littleBlind;
+	private boolean bigBlind;
+	private boolean isHuman;
+	
+	private String name;
+	
+	
+	public Player(String name, boolean isHuman) {
 		this.name = name;
-		this.cardOne = deck.deal();
-		this.cardTwo = deck.deal();
+		this.isHuman = isHuman;
 	}
 
+	
 	public String getName() {
 		return this.name;
 	}
-	public String toString() {
-		String s = this.name + "'s cards: ";
-		s += this.cardOne.toString() + " | ";
-		s += this.cardTwo.toString();
-		return s;
-	}
 	
-	public void setCards(Card[] river) {
-		this.cards[0] = this.cardOne;
-		this.cards[1] = this.cardTwo;
-		for (int i = 0; i < 5; i++) {
-			this.cards[i+2] = river[i];
+	
+	public CardList getCards() {
+		if (!this.cards.contains(this.getCardOne().getNumber(), this.getCardOne().getSuit())) {
+			this.cards.add(0, cardOne);
 		}
-	}
-	
-	public Card[] getCards() {
+		
+		if (!this.cards.contains(this.getCardTwo().getNumber(), this.getCardTwo().getSuit())) {
+			this.cards.add(0, cardTwo);
+		}
+		
 		return this.cards;
 	}
 	
-	public Card[] sortCardsByNumber(Card[] hand) {
-		ArrayList<Card> cards = new ArrayList<Card>();
-		for (int i = 0; i < hand.length; i++) {
-			cards.add(hand[i]);
-		}
-		Collections.sort(cards);
-		for (int j = 0; j < hand.length; j++) {
-			hand[j] = cards.get(j);
-		}
-		return hand;
-		
+	public int getChips() {
+		return this.chips;
 	}
 	
-	public int isStraightFlush(Card[] hand) {
-		if (this.isFlush(this.getCards())[0].getNumber() == 0 && this.isStraight(this.getCards()) > 0) {
+	
+	public Card getCardOne() {
+		return cardOne;
+	}
+
+
+	public Card getCardTwo() {
+		return cardTwo;
+	}
+
+
+	public String toString() {
+		return this.getCardOne().toString() + " | " + this.getCardTwo().toString();
+	}
+	
+	public String suitlessString() {
+		if (cardTwo.getNumber() > cardOne.getNumber()) {
+			Card temp = cardOne;
+			cardOne = cardTwo;
+			cardTwo = temp;
+		}
+		
+		String type = "";
+		switch (cardOne.getNumber()) {
+			
+		case 14:
+			type += "A";
+			break;
+		case 13:
+			type += "K";
+			break;
+		case 12:
+			type += "Q";
+			break;
+		case 11:
+			type += "J";
+			break;
+		case 10:
+			type += "0";
+			break;
+		default:
+			type += Integer.toString(cardOne.getNumber());
+			break;
+		}
+		
+		switch (cardTwo.getNumber()) {
+		
+		case 14:
+			type += "A";
+			break;
+		case 13:
+			type += "K";
+			break;
+		case 12:
+			type += "Q";
+			break;
+		case 11:
+			type += "J";
+			break;
+		case 10:
+			type += "0";
+			break;
+		default:
+			type += Integer.toString(cardTwo.getNumber());
+			break;
+		}
+		
+		if (cardOne.getSuit().equals(cardTwo.getSuit())) {
+			type += "S";
+		} else {
+			type += "O";
+		}
+		return type;
+	}
+	
+	
+	public void dealCards(Deck deck) {
+		this.cardOne = deck.deal();
+		this.cardTwo = deck.deal();
+	}
+	
+	public void setRiver(CardList river) {
+		// Add the two hand cards to the overall ArrayList of cards.
+		this.cards = new CardList();
+		this.cards.add(this.getCardOne());
+		this.cards.add(this.getCardTwo());
+		
+		// Add river cards to the overall ArrayList of cards.
+		for (int i = 0; i < river.size(); i++) {
+			this.cards.add(river.get(i));
+		}
+	}
+	
+	public void setBigBlind(boolean isBigBlind) {
+		this.bigBlind = isBigBlind;
+	}
+	
+	public void setLittleBlind(boolean isLittleBlind) {
+		this.littleBlind = isLittleBlind;
+	}
+	
+	public CardList getRiver() {
+		CardList river = this.cards;
+		river.remove(getCardOne());
+		river.remove(getCardTwo());
+		return river;
+	}
+	
+	public int getCurrentBet() {
+		return this.currentBet;
+	}
+	
+	public boolean getBigBlind() {
+		return this.bigBlind;
+	}
+	
+	public boolean getLittleBlind() {
+		return this.littleBlind;
+	}
+	
+	public void clearCards() {
+		this.cardOne = null;
+		this.cardTwo = null;
+		this.cards = null;
+	}
+	
+	
+	public void betChips(int chips) {
+		this.chips -= chips;
+		this.currentBet = chips;
+	}
+	
+	
+	public void winPot(int chips, int winners) {
+		this.chips += chips / winners;
+	}
+	
+	
+	public int evaluateBet(int call, int betNumber) {
+		
+		Scanner scan = new Scanner(System.in);
+		
+		if (!this.isHuman) {
+			int randomChance = (int) (2 * Math.random());
+			if (randomChance > 0) {
+				return call;
+			}
 			return 0;
 		}
-		int numOfClubs = 0;
-		int numOfSpades = 0;
-		int numOfDiamonds = 0;
-		int numOfHearts = 0;
+		
+		System.out.println("Your Chips: " + this.getChips());
+		System.out.println("Your Hand: " + this.getCardOne() + " " + this.getCardTwo());
+		if (betNumber == 1) {
+			System.out.println("Flop: " + this.getCards().get(2) + this.getCards().get(3) + this.getCards().get(4));
+		} else if (betNumber == 2) {
+			System.out.println("Turn: " + this.getCards().get(2) + this.getCards().get(3) + this.getCards().get(4) + 
+					this.getCards().get(5));
+		} else if (betNumber == 3) {
+			System.out.println("River: " + this.getCards().get(2) + this.getCards().get(3) + this.getCards().get(4) + 
+					this.getCards().get(5) + this.getCards().get(6));
+		}
+		
+		System.out.println("Bet " + call + " to call. Bet 0 to fold.");
+		int bet = scan.nextInt();
+		return bet;
+		
+		
+	}
+	
+	public int straightFlush(CardList cards) {
+		
+		cards.sort();
+		
+		// If you don't have a straight and a flush, you don't have a straight flush!
+		// However, it is possible to have both a straight and a flush, but not a straight flush.
+		if (this.straight(this.getCards()) == 0 || this.flush(this.getCards())[0] == 0) {
+			return 0;
+		}
+		
+		int highestStraight = this.straight(this.getCards());
+		
+		// The reason we need this code is to determine what suit is predominant, since we can't
+		// get that information from the flush method.
+		int clubs = 0;
+		int diamonds = 0;
+		int hearts = 0;
+		int spades = 0;
+		String flushSuit = "";
+		
+		for (int i = 0; i < cards.size(); i++) {
+			if (cards.get(i).getSuit().equals("Clubs")) {
+				clubs++;
+			} else if (cards.get(i).getSuit().equals("Diamonds")) {
+				diamonds++;
+			} else if (cards.get(i).getSuit().equals("Hearts")) {
+				hearts++;
+			} else {
+				spades++;
+			}
+		}
+		
+		if (clubs >= 5) {
+			flushSuit = "Clubs";
+		} else if (diamonds >= 5) {
+			flushSuit = "Diamonds";
+		} else if (hearts >= 5) {
+			flushSuit = "Hearts";
+		} else {
+			flushSuit = "Spades";
+		}
+		
+		// Now we can use the contains method to see if all of the needed cards are present.
+		// Of course, A-5 Straight Flush should be denoted.
+		if (highestStraight == 5) {
+			if (cards.contains(14, flushSuit) &&
+					cards.contains(2, flushSuit) &&
+					cards.contains(3, flushSuit) &&
+					cards.contains(4, flushSuit) &&
+					cards.contains(5, flushSuit)) {
+				return 5;
+			}
+		}
+		
+		if (cards.contains(highestStraight, flushSuit) &&
+				cards.contains(highestStraight - 1, flushSuit) &&
+				cards.contains(highestStraight - 2, flushSuit) &&
+				cards.contains(highestStraight - 3, flushSuit) &&
+				cards.contains(highestStraight - 4, flushSuit)) {
+			return highestStraight;
+		}
+		
+		return 0;
+	}
+	
+	
+	public int[] fourKind(CardList cards) {
+		// Sort the cards, then check all possible locations for a four of a kind. Multiple four of a kinds are impossible.
+		
+		cards.sort();
+		
 		int highest = 0;
 		
-		for (int i = 0; i < 7; i++) {
-			if (hand[i].getSuite().equals("Clubs")) {
-				numOfClubs++;
-			} else if (hand[i].getSuite().equals("Spades")) {
-				numOfSpades++;
-			} else if (hand[i].getSuite().equals("Diamonds")) {
-				numOfDiamonds++;
-			} else if (hand[i].getSuite().equals("Hearts")) {
-				numOfHearts++;
+		for (int i = 0; i < cards.size() - 4; i++) {
+			if (cards.get(i).getNumber() == cards.get(i + 1).getNumber() &&
+					cards.get(i).getNumber() == cards.get(i + 2).getNumber() &&
+					cards.get(i).getNumber() == cards.get(i + 3).getNumber()) {
+				highest = cards.get(i).getNumber();
 			}
 		}
 		
-		if (numOfSpades > highest) {
-			highest = numOfSpades;
+		// Return blank array if no four of a kind is found.
+		if (highest == 0) {
+			int[] blankArray = {0, 0};
+			return blankArray;
 		}
 		
-		if (numOfDiamonds > highest) {
-			highest = numOfDiamonds;
-		}
+		int i = 6;
+		int highCard = 0;
 		
-		if (numOfHearts > highest) {
-			highest = numOfHearts;
-		}
+		// Sets highCard to the highest card that isn't a part of the four of a kind.
+		do {
+			highCard = cards.get(i).getNumber();
+			i--;
+		} while (highCard == highest);
 		
-		if (numOfClubs > highest) {
-			highest = numOfClubs;
-		}
-	
-		ArrayList <Integer> sameSuitNumbers = new ArrayList<Integer>();
-		
-		if (numOfSpades == highest) {
-			for (int a = 0; a < 7; a++) {
-				if (hand[a].getSuite().equals("Spades")) {
-					sameSuitNumbers.add(hand[a].getNumber());
-				}
-			}
-		}
-		
-		if (numOfDiamonds == highest) {
-			for (int a = 0; a < 7; a++) {
-				if (hand[a].getSuite().equals("Diamonds")) {
-					sameSuitNumbers.add(hand[a].getNumber());
-				}
-			}
-		}
-		
-		if (numOfHearts == highest) {
-			for (int a = 0; a < 7; a++) {
-				if (hand[a].getSuite().equals("Hearts")) {
-					sameSuitNumbers.add(hand[a].getNumber());
-				}
-			}
-		}
-		
-		if (numOfClubs == highest) {
-			for (int a = 0; a < 7; a++) {
-				if (hand[a].getSuite().equals("Clubs")) {
-					sameSuitNumbers.add(hand[a].getNumber());
-				}
-			}
-		}
-
-		Collections.sort(sameSuitNumbers);
-		int[] sameSuitArray = new int[highest];
-		for (int k = 0; k < highest; k++) {
-			sameSuitArray[k] = sameSuitNumbers.get(k);
-		}
-		
-		if (highest == 5) {
-			if (sameSuitArray[4] == 14 && sameSuitArray[0] == 2 &&
-							sameSuitArray[1] == 3 && sameSuitArray[2] == 4 && sameSuitArray[3] == 5) {
-				return 5;
-			} else if (sameSuitArray[1] - sameSuitArray[0] == 1 &&
-					sameSuitArray[2] - sameSuitArray[1] == 1 &&
-					sameSuitArray[3] - sameSuitArray[2] == 1 &&
-					sameSuitArray[4] - sameSuitArray[3] == 1) {
-				return sameSuitArray[4];
-			} else {
-				return 0;
-			}
-			
-			
-		} else if (highest == 6) {
-			if (sameSuitArray[5] == 14 && sameSuitArray[0] == 2 &&
-					sameSuitArray[1] == 3 && sameSuitArray[2] == 4 && sameSuitArray[3] == 5) {
-				return 5;
-			}
-			
-			if (sameSuitArray[1] - sameSuitArray[0] == 1 &&
-					sameSuitArray[2] - sameSuitArray[1] == 1 &&
-					sameSuitArray[3] - sameSuitArray[2] == 1 &&
-					sameSuitArray[4] - sameSuitArray[3] == 1) {
-				return sameSuitArray[4];
-			} else if (sameSuitArray[2] - sameSuitArray[1] == 1 &&
-					sameSuitArray[3] - sameSuitArray[2] == 1 &&
-					sameSuitArray[4] - sameSuitArray[3] == 1 &&
-					sameSuitArray[5] - sameSuitArray[4] == 1) {
-				return sameSuitArray[5];
-			} else {
-				return 0;
-			}
-			
-			
-		} else {
-			return isStraight(hand);
-		}
-	}
-	
-	public int[] isFourOfAKind(Card[] hand) {
-		int[] winner = new int[2];
-		hand = this.sortCardsByNumber(hand);
-		
-		if (hand[0].getNumber() == hand[1].getNumber() &&
-				hand[0].getNumber() == hand[2].getNumber() && 
-						hand[0].getNumber()  == hand[3].getNumber()) {
-			winner[0] = hand[0].getNumber();
-		} 
-		
-		else if (hand[1].getNumber() == hand[2].getNumber() &&
-				hand[1].getNumber() == hand[3].getNumber() && 
-					hand[1].getNumber()  == hand[4].getNumber()) {
-			winner[0] = hand[1].getNumber();
-		} 
-		
-		else if (hand[2].getNumber() == hand[3].getNumber() &&
-				hand[2].getNumber() == hand[4].getNumber() && 
-					hand[2].getNumber()  == hand[5].getNumber()) {
-			winner[0] = hand[2].getNumber();
-		} 
-		
-		else if (hand[3].getNumber() == hand[4].getNumber() &&
-				hand[3].getNumber() == hand[5].getNumber() && 
-					hand[3].getNumber()  == hand[6].getNumber()) {
-			winner[0] = hand[3].getNumber();
-		} else {
-			winner[0] = 0;
-			winner[1] = 0;
-			return winner;
-		}
-		
-		if (winner[0] > 0) {
-			for (int i = 0; i < 7; i++) {
-				if (hand[i].getNumber() == winner[0]) {
-					hand[i] = new Card("Temp", 1);
-				}
-			}
-			
-			hand = this.sortCardsByNumber(hand);
-			winner[1] = hand[6].getNumber();
-			return winner;
-		}
-		return winner;
-	}
-	
-	public int[] isFullHouse(Card[] hand) {
-		int[] xFullY = new int[2];
-		xFullY[1] = this.isPair(hand)[0];
-		xFullY[0] = this.isThreeOfAKind(hand)[0];
-		return xFullY;
-	}
-	
-	public Card[] isFlush(Card[] hand) {
-		Card[] highCards = new Card[7];
-		
-		Card[] sortedBySuite = new Card[7];
-		for (int i = 0; i < 7; i++) {
-			sortedBySuite[i] = new Card("Temp", 0);
-		}
-		int temp = 0;
-		
-		for (int a = 0; a < 7; a++) {
-			if (hand[a].getSuite().equals("Clubs")) {
-				sortedBySuite[temp] = hand[a];
-				temp++;
-			}
-		}
-		
-		for (int a = 0; a < 7; a++) {
-			if (hand[a].getSuite().equals("Diamonds")) {
-				sortedBySuite[temp] = hand[a];
-				temp++;
-			}
-		}
-		
-		for (int a = 0; a < 7; a++) {
-			if (hand[a].getSuite().equals("Hearts")) {
-				sortedBySuite[temp] = hand[a];
-				temp++;
-			}
-		}
-		
-		for (int a = 0; a < 7; a++) {
-			if (hand[a].getSuite().equals("Spades")) {
-				sortedBySuite[temp] = hand[a];
-				temp++;
-			}
-		}
-		
-		String flushSuite = "";
-		
-		if (sortedBySuite[0].getSuite().equals(sortedBySuite[1].getSuite()) &&
-				sortedBySuite[0].getSuite().equals(sortedBySuite[2].getSuite()) &&
-				sortedBySuite[0].getSuite().equals(sortedBySuite[3].getSuite()) &&
-				sortedBySuite[0].getSuite().equals(sortedBySuite[4].getSuite())) {
-			
-			flushSuite = sortedBySuite[0].getSuite();
-			
-		} else if (sortedBySuite[1].getSuite().equals(sortedBySuite[2].getSuite()) &&
-				sortedBySuite[1].getSuite().equals(sortedBySuite[3].getSuite()) &&
-				sortedBySuite[1].getSuite().equals(sortedBySuite[4].getSuite()) &&
-				sortedBySuite[1].getSuite().equals(sortedBySuite[5].getSuite())) {
-			
-			flushSuite = sortedBySuite[1].getSuite();
-			
-		} else if (sortedBySuite[2].getSuite().equals(sortedBySuite[3].getSuite()) &&
-				sortedBySuite[2].getSuite().equals(sortedBySuite[4].getSuite()) &&
-				sortedBySuite[2].getSuite().equals(sortedBySuite[5].getSuite()) &&
-				sortedBySuite[2].getSuite().equals(sortedBySuite[6].getSuite())) {
-			
-			flushSuite = sortedBySuite[2].getSuite();
-			
-		} else {
-			for (int i = 0; i < 7; i ++) {
-				highCards[i] = new Card("Temp", 0);
-			}
-			return highCards;
-		}
-		
-		ArrayList<Card> flushCards = new ArrayList<Card>();
-		
-		for (int i = 0; i < 7; i++) {
-			if (sortedBySuite[i].getSuite().equals(flushSuite)) {
-				flushCards.add(sortedBySuite[i]);
-			}
-		}
-		
-		Collections.sort(flushCards);
-		
-		for (int i = 0; i < flushCards.size(); i++) {
-			highCards[i] = flushCards.get(flushCards.size() - i - 1);
-		}
-		
-		if (flushCards.size() == 6) {
-			highCards[5] = new Card("Temp", 0);
-		} else if (flushCards.size() == 7) {
-			highCards[5] = new Card("Temp", 0);
-			highCards[6] = new Card("Temp", 0);
-		}
-		
-		
-		return highCards;
+		int[] fourHighCard = {highest, highCard};
+		return fourHighCard;
 		
 	}
 	
-	public int isStraight(Card[] hand) {
-		int[] numbers = new int[7];
+	
+	public int[] fullHouse(CardList cards) {
 		
-		ArrayList<Integer> sortedNumbers = new ArrayList<Integer>();
-		for (int j = 0; j < hand.length; j++) {
-			sortedNumbers.add(hand[j].getNumber());
+		cards.sort();
+		
+		if (this.threeKind(this.getCards())[0] == 0 && this.twoPair(this.getCards())[0] == 0) {
+			int[] blankArray = {0, 0};
+			return blankArray;
 		}
 		
-		Collections.sort(sortedNumbers);
-		for (int k = 0; k < hand.length; k++) {
-			numbers[k] = sortedNumbers.get(k);
+		// At this point, we know that the player has a Three of a Kind.
+		
+		int[] tripleDouble = new int[2];
+		
+		tripleDouble[0] = this.threeKind(this.getCards())[0];
+		if (this.twoPair(this.getCards())[0] == tripleDouble[0]) { // If the highest pair is the three of a kind, the second highest pair
+			tripleDouble[1] = this.twoPair(this.getCards())[1];    // Should be added to the "double" part of the int[2] array.
+		} else {										 // Else, the highest pair should be added.
+			tripleDouble[1] = this.twoPair(this.getCards())[0];
 		}
 		
+		return tripleDouble;
+	}
+	
+	
+	public int[] flush(CardList cards) {
+		cards.sortBySuit();
 		
-		//Moves Duplicates to the end.
-		for (int l = 1; l < hand.length; l++) {
-			if (numbers[l] == numbers[l - 1]) {
-				int temp = numbers[l];
-				for (int m = l + 1; m < 7; m++) {
-					numbers[m - 1] = numbers[m];
-				}
-				numbers[6] = temp;
+		String flushSuit = "No Flush!";
+		
+		// Since they're sorted by suit, 5 of the same suit in a row would mean a flush.
+		for (int i = 0; i < cards.size() - 5; i++) {
+			if (cards.get(i).getSuit().equals(cards.get(i + 1).getSuit()) &&
+					cards.get(i).getSuit().equals(cards.get(i + 2).getSuit()) && 
+					cards.get(i).getSuit().equals(cards.get(i + 3).getSuit()) && 
+					cards.get(i).getSuit().equals(cards.get(i + 4).getSuit())) {
+						flushSuit = cards.get(i).getSuit();
 			}
 		}
+		
+		// We need to return an array of 0s if there is no flushSuit.
+		
+		if (flushSuit.equals("No Flush!")) {
+			int[] blankArray = {0, 0, 0, 0, 0};
+			return blankArray;
+		}
+		
+		// Create a new CardList, and add all of the Cards in the Flush to it.
+		CardList flushCards = new CardList();
+			
+		for (int i = 0; i < cards.size(); i++) {
+			if (cards.get(i).getSuit().equals(flushSuit)) {
+					flushCards.add(cards.get(i));
+			}
+		}
+			
+		// Now we sort the cards by number, and return an int[] with the highest 5 numbers of the suit.
+		
+		flushCards.sort();
+		
+		int[] flushNumbers = {flushCards.get(flushCards.size() - 1).getNumber(), 
+				flushCards.get(flushCards.size() - 2).getNumber(), 
+				flushCards.get(flushCards.size() - 3).getNumber(), 
+				flushCards.get(flushCards.size() - 4).getNumber(), 
+				flushCards.get(flushCards.size() - 5).getNumber()};
+		
+		return flushNumbers;
+	}
+	
+	
+	public int straight(CardList cards) {
+		cards.sort();
 		
 		int highestStraight = 0;
 		
-		if ((numbers[4] != 6) && 
-				(numbers[6] == 14 && numbers[0] == 2 &&
-				numbers[1] == 3 && numbers[2] == 4 && numbers[3] == 5)) {
+		// First we need to check the Ace-5 Straight.
+		
+		if (cards.contains(14) && cards.contains(2) && cards.contains(3) && cards.contains(4) && cards.contains(5)) {
 			highestStraight = 5;
-		} else if (numbers[1] - numbers[0] == 1 && 
-				numbers[2] - numbers[1] == 1 &&
-				numbers[3] - numbers[2] == 1 && 
-				numbers[4] - numbers[3] == 1 && 
-				numbers[4] > highestStraight) {
-			highestStraight = numbers[4];
-		} else if (numbers[2] - numbers[1] == 1 && 
-				numbers[3] - numbers[2] == 1 &&
-				numbers[4] - numbers[3] == 1 && 
-				numbers[5] - numbers[4] == 1 &&
-				numbers[5] > highestStraight) {
-			highestStraight = numbers[5];
-		} else if (numbers[3] - numbers[2] == 1 && 
-				numbers[4] - numbers[3] == 1 &&
-				numbers[5] - numbers[4] == 1 && 
-				numbers[6] - numbers[5] == 1 &&
-				numbers[6] > highestStraight) {
-			highestStraight = numbers[6];
 		}
+		
+		// Since they're sorted, it should check 5 cards in a row and if the difference in their numbers is 1 all around,
+		// you have a straight whose highest card is the 5th one.
+		for (int i = 0; i < cards.size() - 5; i++) {
+			if (cards.get(i + 4).getNumber() - cards.get(i + 3).getNumber() == 1 &&
+					cards.get(i + 3).getNumber() - cards.get(i + 2).getNumber() == 1 &&
+					cards.get(i + 2).getNumber() - cards.get(i + 1).getNumber() == 1 &&
+					cards.get(i + 1).getNumber() - cards.get(i).getNumber() == 1 
+					&& cards.get(i + 4).getNumber() > highestStraight) {
+				highestStraight = cards.get(i + 4).getNumber();
+			}
+		}
+		
 		return highestStraight;
 	}
 	
-	public int[] isThreeOfAKind(Card[] hand) {
-		int[] winner = new int[3];
-		winner[0] = 0;
-		Card[] sortedHand = this.sortCardsByNumber(hand);
-
-		if (sortedHand[0].getNumber() == sortedHand[1].getNumber() && 
-				sortedHand[0].getNumber() == sortedHand[2].getNumber() &&
-						sortedHand[0].getNumber() > winner[0]) {
-			winner[0] = sortedHand[0].getNumber();
-		}
-		if (sortedHand[1].getNumber() == sortedHand[2].getNumber() && 
-				sortedHand[1].getNumber() == sortedHand[3].getNumber() &&
-						sortedHand[1].getNumber() > winner[0]) {
-			winner[0] = sortedHand[1].getNumber();
-		}
-		
-		if (sortedHand[2].getNumber() == sortedHand[3].getNumber() && 
-				sortedHand[2].getNumber() == sortedHand[4].getNumber() &&
-						sortedHand[2].getNumber() > winner[0]) {
-			winner[0] = sortedHand[2].getNumber();
-		}
-		
-		if (sortedHand[3].getNumber() == hand[4].getNumber() && 
-				sortedHand[3].getNumber() == hand[5].getNumber() &&
-						sortedHand[3].getNumber() > winner[0]) {
-			winner[0] = sortedHand[3].getNumber();
-		}
-		
-		if (sortedHand[4].getNumber() == sortedHand[6].getNumber() && 
-				sortedHand[4].getNumber() == sortedHand[6].getNumber() &&
-						sortedHand[4].getNumber() > winner[0]) {
-			winner[0] = sortedHand[4].getNumber();
-		}
-		if (winner[0] > 0) {
-			this.sortCardsByNumber(sortedHand);
-			winner[1] = sortedHand[6].getNumber();
-			winner[2] = sortedHand[5].getNumber();
-			return winner;
-		}
-		return winner;
-	}
 	
-	public int[] isTwoPair(Card[] hand) {
-		hand = this.sortCardsByNumber(hand);
-		int highestPair = 1;
-		int secondHighestPair = 1;
-		int[] winners = new int[3];
-		winners[0] = 0;
-		winners[1] = 0;
-		winners[2] = 0;
+	public int[] threeKind(CardList cards) {
 		
-		if (hand[0].getNumber() == hand[1].getNumber() && hand[0].getNumber() > highestPair) {
-			highestPair = hand[0].getNumber();
-		}
-		if (hand[1].getNumber() == hand[2].getNumber() && hand[1].getNumber() > highestPair) {
-			highestPair = hand[1].getNumber();
-		}
-		if (hand[2].getNumber() == hand[3].getNumber() && hand[2].getNumber() > highestPair) {
-			highestPair = hand[2].getNumber();
-		}
-		if (hand[3].getNumber() == hand[4].getNumber() && hand[3].getNumber() > highestPair) {
-			highestPair = hand[3].getNumber();
-		}
-		if (hand[4].getNumber() == hand[5].getNumber() && hand[4].getNumber() > highestPair) {
-			highestPair = hand[4].getNumber();
-		}
-		if (hand[5].getNumber() == hand[6].getNumber() && hand[5].getNumber() > highestPair) {
-			highestPair = hand[5].getNumber();
-		}
+		cards.sort();
 		
-		if (hand[0].getNumber() == hand[1].getNumber() && hand[0].getNumber() != highestPair && hand[0].getNumber() > secondHighestPair) {
-			secondHighestPair = hand[0].getNumber();
-		}
-		if (hand[1].getNumber() == hand[2].getNumber() && hand[1].getNumber() != highestPair && hand[1].getNumber() > secondHighestPair) {
-			secondHighestPair = hand[1].getNumber();
-		}
-		if (hand[2].getNumber() == hand[3].getNumber() && hand[2].getNumber() != highestPair && hand[2].getNumber() > secondHighestPair) {
-			secondHighestPair = hand[2].getNumber();
-		}
-		if (hand[3].getNumber() == hand[4].getNumber() && hand[3].getNumber() != highestPair && hand[3].getNumber() > secondHighestPair) {
-			secondHighestPair = hand[3].getNumber();
-		}
-		if (hand[4].getNumber() == hand[5].getNumber() && hand[4].getNumber() != highestPair && hand[4].getNumber() > secondHighestPair) {
-			secondHighestPair = hand[4].getNumber();
-		}
-		if (hand[5].getNumber() == hand[6].getNumber() && hand[5].getNumber() != highestPair && hand[5].getNumber() > secondHighestPair) {
-			secondHighestPair = hand[5].getNumber();
-		}
+		int highest = 0; // Theoretically, since you have seven cards, you could have two Three of A Kinds.
 		
-		if (highestPair > 1 && secondHighestPair > 1) {
-			winners[0] = highestPair;
-			winners[1] = secondHighestPair;
-			this.sortCardsByNumber(hand);
-			
-			int c = 6;
-			while (hand[c].getNumber() != winners[0] && hand[c].getNumber() != winners[1]) {
-				c--;
+		for (int i = 0; i < cards.size() - 2; i++) {
+			if (cards.get(i).getNumber() == cards.get(i + 1).getNumber() &&
+					cards.get(i).getNumber() == cards.get(i + 2).getNumber() &&
+					cards.get(i).getNumber() > highest) {
+				highest = cards.get(i).getNumber();
 			}
-			winners[2] = hand[c].getNumber();
 		}
-		return winners;
+		
+		if (highest == 0) {
+			int[] blankArray = {0, 0, 0};
+			return blankArray;
+		}
+		
+		int highCard1 = 0;
+		int highCard2 = 0;
+		int i = 6;
+		
+		do {
+			highCard1 = cards.get(i).getNumber();
+			i--;
+		} while (highCard1 == highest);
+		
+		i = 5;
+		do {
+			highCard2 = cards.get(i).getNumber();
+			i--;
+		} while (highCard2 == highest || highCard2 == highCard1 && i > -1);
+		
+		int[] threeHighCard = {highest, highCard1, highCard2};
+		return threeHighCard;
 	}
 	
-	public int[] isPair(Card[] hand) {
-		hand = this.sortCardsByNumber(hand);
-		int highestPair = 1;
-		int[] winners = new int[4];
+	
+	public int[] twoPair(CardList cards) {
 		
-		if (hand[0].getNumber() == hand[1].getNumber() && hand[0].getNumber() != hand[2].getNumber() && hand[0].getNumber() > highestPair) {
-			highestPair = hand[0].getNumber();
-		}
-		if (hand[1].getNumber() == hand[2].getNumber() && hand[1].getNumber() != hand[3].getNumber() && hand[1].getNumber() != hand[0].getNumber() && hand[1].getNumber() > highestPair) {
-			highestPair = hand[0].getNumber();
-		}
-		if (hand[2].getNumber() == hand[3].getNumber() && hand[2].getNumber() != hand[4].getNumber() && hand[2].getNumber() != hand[1].getNumber() && hand[2].getNumber() > highestPair) {
-			highestPair = hand[0].getNumber();
-		}
-		if (hand[3].getNumber() == hand[4].getNumber() && hand[3].getNumber() != hand[5].getNumber() && hand[3].getNumber() != hand[2].getNumber() && hand[3].getNumber() > highestPair) {
-			highestPair = hand[0].getNumber();
-		}
-		if (hand[4].getNumber() == hand[5].getNumber() && hand[4].getNumber() != hand[6].getNumber() && hand[4].getNumber() != hand[3].getNumber() && hand[4].getNumber() > highestPair) {
-			highestPair = hand[0].getNumber();
-		}
-		if (hand[5].getNumber() == hand[6].getNumber() && hand[5].getNumber() != hand[4].getNumber() && hand[5].getNumber() > highestPair) {
-			highestPair = hand[0].getNumber();
+		int[] blankArray = {0, 0, 0}; // Declared up here because it is needed twice.
+		
+		cards.sort();
+		
+		int highestPair = this.pair(this.getCards())[0];
+		
+		if (highestPair == 0) {
+			return blankArray;
 		}
 		
-		if (highestPair > 1) {
-			winners[0] = highestPair;
-			hand = this.sortCardsByNumber(hand);
-			winners[1] = hand[6].getNumber();
-			winners[2] = hand[5].getNumber();
-			winners[3] = hand[4].getNumber();
+		int secondHighestPair = 0;
+		
+		for (int i = 0; i < cards.size() - 1; i++) {
+			if (cards.get(i).getNumber() == cards.get(i + 1).getNumber() &&
+					cards.get(i).getNumber() > secondHighestPair && 
+					cards.get(i).getNumber() != highestPair) {
+			secondHighestPair = cards.get(i).getNumber();
+			}
 		}
-		return winners;
+		
+		if (secondHighestPair == 0) {
+			return blankArray;
+		}
+		
+		int highCard = 0;
+		
+		int i = 6;
+		do {
+			highCard = cards.get(i).getNumber();
+			i--;
+		} while (highCard == highestPair || highCard == secondHighestPair && i > 0);
+		
+		int[] pairsHighCard = {highestPair, secondHighestPair, highCard};
+		return pairsHighCard;
+		
 	}
 	
-	public int[] highCards(Card[] hand) {
-		int[] highToLow = new int[7];
-		ArrayList<Integer> lowToHigh = new ArrayList<Integer>();
+	
+	public int[] pair(CardList cards) {
 		
-		Collections.sort(lowToHigh);
-		for (int j = 0; j < 7; j++) {
-			highToLow[j] = lowToHigh.get(6 - j);
+		cards.sort();
+		
+		// Since the cards are smallest to largest, a pair will always be in a row. 
+		// Just checks for the highest pair.
+		
+		// This will also count a Three of a Kind as a pair.
+		
+		int highestPair = 0;
+		for (int i = 0; i < cards.size() - 1; i++) {
+			if (cards.get(i).getNumber() == cards.get(i + 1).getNumber() &&
+						cards.get(i).getNumber() > highestPair) {
+				highestPair = cards.get(i).getNumber();
+			}
 		}
-		return highToLow;
+		
+		if (highestPair == 0) {
+			int[] blankArray = {0, 0, 0, 0};
+			return blankArray;
+		}
+		
+		int highCard1 = 0;
+		int highCard2 = 0;
+		int highCard3 = 0;
+		
+		// High Card (Pair Tie-breaker) has to be the highest 3 cards that are not in the pair. 
+		// Will set three int variables to the three highest cards that aren't in the pair.
+		
+		
+		for (int i = 0; i < cards.size(); i++) {
+			if (cards.get(i).getNumber() != highestPair && 
+					cards.get(i).getNumber() > highCard1) {
+				highCard1 = cards.get(i).getNumber();
+			}
+		}
+		
+		for (int i = 0; i < cards.size(); i++) {
+			if (cards.get(i).getNumber() != highestPair &&
+					cards.get(i).getNumber() != highCard1 && 
+					cards.get(i).getNumber() > highCard2) {
+				highCard2 = cards.get(i).getNumber();
+			}
+		}
+		
+		for (int i = 0; i < cards.size(); i++) {
+			if (cards.get(i).getNumber() != highestPair &&
+					cards.get(i).getNumber() != highCard1 &&
+					cards.get(i).getNumber() != highCard2 &&
+					cards.get(i).getNumber() > highCard3) {
+				highCard3 = cards.get(i).getNumber();
+			}
+		}
+			
+		// Creates an int[4] of {Pair, Highest non-Pair, Second... Third...}
+		int[] pairHighCard = {highestPair, highCard1, highCard2, highCard3};
+		
+		
+		return pairHighCard;
+		
 	}
+	
+	
+	public int[] highCard(CardList cards) {
+		
+		// Sorts the cards, then returns the highest 5. Size of cards should always be 7.
+		cards.sort();
+		
+		int[] highCards = {cards.get(6).getNumber(), cards.get(5).getNumber(), cards.get(4).getNumber(),
+				cards.get(3).getNumber(), cards.get(2).getNumber()};
+		
+		return highCards;
+	}
+	
 }
