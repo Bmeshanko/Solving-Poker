@@ -15,38 +15,6 @@ public class PlayerList extends ArrayList<Player> {
 		return this.potSize;
 	}
 	
-	public PlayerList preFlopBets(int handsPlayed) {
-		PlayerList foldingPlayers = new PlayerList();
-		
-		
-		
-		return foldingPlayers;
-	}
-	
-	public PlayerList flopBets(int litteBlind) {
-		PlayerList foldingPlayers = new PlayerList();
-		
-		
-		
-		return foldingPlayers;
-	}
-	
-	public PlayerList turnBets(int firstBetter) {
-		PlayerList foldingPlayers = new PlayerList();
-		
-		
-		
-		return foldingPlayers;
-	}
-	
-	public PlayerList riverBets(int firstBetter) {
-		PlayerList foldingPlayers = new PlayerList();
-		
-		
-		
-		return foldingPlayers;
-	}
-	
 	public void initializeHand(Deck deck) {
 		
 		int size = this.size();
