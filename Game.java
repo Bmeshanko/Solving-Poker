@@ -32,8 +32,17 @@ public class Game {
 			
 			handsPlayed++;
 			
+			Deck deck = new Deck(); // We need a new Deck for each hand.
+			
+			players.initializeHand(deck); // Initialize the hand.
+			
+			int littleBlind = (handsPlayed - 1) % players.size(); 
+			int bigBlind = handsPlayed % players.size();
+			int firstBetter = (handsPlayed + 1) % players.size();
+			
 			
 		} // End of the Loop.
+		
 		for (int i = 0; i < players.size(); i++) {
 			System.out.println(players.get(i).getChips());
 		}
